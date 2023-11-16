@@ -1,0 +1,82 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* This file is for your main application CSS */
+@layer utilities {
+    .w-1\/7 {
+        width: 14.2857142857%
+    }
+
+    .w-2\/7 {
+        width: 28.5714285714%
+    }
+
+    .w-3\/7 {
+        width: 42.8571428571%
+    }
+
+    .w-4\/7 {
+        width: 57.1428571429%
+    }
+
+    .w-5\/7 {
+        width: 71.4285714286%
+    }
+
+    .w-6\/7 {
+        width: 85.7142857143%
+    }
+
+    .ml-1\/7 {
+        margin-left: 14.2857142857%;
+    }
+
+    .ml-2\/7 {
+        margin-left: 28.5714285714%;
+    }
+
+    .ml-3\/7 {
+        margin-left: 42.8571428571%
+    }
+
+    .ml-4\/7 {
+        margin-left: 57.1428571429%
+    }
+
+    .ml-5\/7 {
+        margin-left: 71.4285714286%
+    }
+
+    .ml-6\/7 {
+        margin-left: 85.7142857143%
+    }
+
+    .top-30 {
+        top: 7.5em;
+    }
+
+    .top-40 {
+        top: 10em;
+    }
+
+    .top-50 {
+        top: 12.5em;
+    }
+
+    .top-60 {
+        top: 15em;
+    }
+
+    .top-70 {
+        top: 17.5em;
+    }
+
+    .top-80 {
+        top: 20em;
+    }
+
+    .top-90 {
+        top: 22.5em;
+    }
+}

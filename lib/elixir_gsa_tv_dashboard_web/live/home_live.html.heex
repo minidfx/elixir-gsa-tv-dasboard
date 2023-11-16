@@ -1,0 +1,63 @@
+<div class="h-screen bg-gray-900 grid grid-cols-12 grid-rows-5 gap-2">
+  <div class="col-span-4 bg-gray-800 border border-gray-500 rounded grid grid-rows-2 place-content-center">
+    <div :if={@clock_ready} class="text-5xl text-center my-auto text-white">
+      <%= Timex.format!(@now, "{YYYY}-{0M}-{D}") %>
+    </div>
+    <div :if={@clock_ready} class="text-5xl text-center my-auto text-white">
+      <%= Timex.format!(@now, "{h24}:{m}:{s}") %>
+    </div>
+  </div>
+  <div class="col-span-8 border border-gray-500 bg-gray-800 rounded">
+    <div class="w-full h-full grid place-content-center text-white p-2">
+      <div :if={@calendar_ready} class="flex flex-wrap gap-1">
+        <div :for={user <- @calendar.users} class="text-white text-2xl rounded p-1" style={"background-color: #{to_color(user)}"}>
+          <%= user %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row-span-3 border border-gray-500 bg-gray-800 rounded grid place-content-center">
+    <div :if={@clock_ready} class="-rotate-90 text-5xl text-white">
+      SEMAINE&nbsp;<%= Timex.format!(@now, "{Wmon}") %>
+    </div>
+  </div>
+  <div class="row-span-3 col-span-11 border border-gray-500 bg-gray-800 rounded">
+    <div class="relative h-full grid grid-cols-7">
+      <%= if @calendar_ready do %>
+        <%= for line <- @calendar.lines do %>
+          <div
+            :for={event <- line.events}
+            class={[
+              "absolute border border-gray-400 rounded p-1 truncate",
+              "top-#{(line.index + 1) * 10}",
+              "w-#{event.duration}/7",
+              event.offset > 0 && "ml-#{event.offset}/7"
+            ]}
+            style={"background-color: #{to_color(event.user)}"}
+          >
+            <%= event.title %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <div
+        :for={day <- ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]}
+        class="h-full border-r-2 border-gray-400 border-dashed last:border-0"
+      >
+        <div class="text-white text-center h-10 bg-gradient-to-b from-slate-600 to-slate-700 bg-clip-padding py-2">
+          <%= day %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-6 border border-gray-500 bg-gray-800 rounded text-white p-2 text-clip text-ellipsis">
+    <div :if={@left_annotation_ready}>
+      <%= @left_annotation %>
+    </div>
+  </div>
+  <div class="col-span-6 border border-gray-500 bg-gray-800 rounded text-white p-2 text-clip text-ellipsis">
+    <div :if={@right_annotation_ready}>
+      <%= @right_annotation %>
+    </div>
+  </div>
+</div>
