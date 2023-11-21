@@ -17,10 +17,9 @@ defmodule ElixirGsaTvDashboardWeb.Router do
   scope "/", ElixirGsaTvDashboardWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", PageController, :index
 
-    live "/tv", HomeLive, :tv
-    live "/phone", HomeLive, :phone
+    live "/9a3d4c6b-87f1-4e9e-8f4a-2b76a7d5c3e1", HomeLive, :tv
   end
 
   # Other scopes may use custom stacks.
@@ -42,5 +41,11 @@ defmodule ElixirGsaTvDashboardWeb.Router do
 
       live_dashboard "/dashboard", metrics: ElixirGsaTvDashboardWeb.Telemetry
     end
+  end
+
+  scope "/", ElixirGsaTvDashboardWeb do
+    pipe_through :browser
+
+    get "/*path", PageController, :not_found
   end
 end
