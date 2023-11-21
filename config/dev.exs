@@ -72,7 +72,7 @@ config :elixir_gsa_tv_dashboard,
   planning_document_id: "<file-id>",
   annotation_left_document_id: "<file-id>",
   annotation_right_document_id: "<file-id>",
-  interval: 10_000
+  pooling_interval: 10_000
 
 # Include HEEx debug annotations as HTML comments in rendered markup
 config :phoenix_live_view, :debug_heex_annotations, true
