@@ -1,4 +1,5 @@
 defmodule ElixirGsaTvDashboardWeb.HomeLive do
+  alias ElixirGsaTvDashboard.EventsOptimizer
   use ElixirGsaTvDashboardWeb, :live_view
 
   require Logger
@@ -9,7 +10,6 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
   alias ElixirGsaTvDashboard.Clock
   alias ElixirGsaTvDashboardWeb.Models.Calendar
   alias ElixirGsaTvDashboard.FilesMonitoring.Event
-  alias ElixirGsaTvDashboardWeb.Models.Line
   alias ElixirGsaTvDashboardWeb.Models.Event
   alias ElixirGsaTvDashboardWeb.Models.Event
   alias ElixirGsaTvDashboard.FilesMonitoring.ParserEvent
@@ -32,12 +32,15 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
   def handle_info(%{status: "looping", tasks_by_user: tasks_by_user}, socket) do
     users =
       tasks_by_user
-      |> Enum.map(fn %ParserLine{user: x} -> x end)
+      |> Enum.map(&map_user/1)
       |> Enum.dedup()
+      |> Enum.sort()
 
     lines =
       tasks_by_user
-      |> translate_lines()
+      |> Enum.map(&translate_events/1)
+      |> Enum.reduce(&flatten/2)
+      |> EventsOptimizer.optimize()
 
     {:noreply,
      socket
@@ -57,8 +60,8 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
      socket
      |> assign(:right_annotation_ready, true)
      |> assign(
-       :right_annotation,
-       text
+       :right_annotations,
+       split_lines(text)
      )}
   end
 
@@ -67,8 +70,8 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
      socket
      |> assign(:left_annotation_ready, true)
      |> assign(
-       :left_annotation,
-       text
+       :left_annotations,
+       split_lines(text)
      )}
   end
 
@@ -88,16 +91,12 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
 
   # Private
 
-  defp translate_lines([]), do: []
+  defp map_user(%ParserLine{user: x}), do: x
 
-  defp translate_lines(lines), do: translate_lines(0, lines, [])
+  defp split_lines(""), do: []
+  defp split_lines(text), do: String.split(text, "\n")
 
-  defp translate_lines(_index, [], new_lines), do: new_lines
-
-  defp translate_lines(index, [%ParserLine{} = line | tail], new_lines) do
-    events = translate_events(line)
-    translate_lines(index + 1, tail, [%Line{index: index, events: events} | new_lines])
-  end
+  defp flatten(events, accumulator), do: events ++ accumulator
 
   defp translate_events(%ParserLine{} = line),
     do:
@@ -110,6 +109,6 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
   defp translate_event(%ParserLine{} = line, %ParserEvent{} = event) do
     %ParserLine{user: user} = line
     %ParserEvent{name: title, start_date: day, count: count_days} = event
-    %Event{title: title, user: user, duration: count_days, offset: day - 1}
+    %Event{title: title, user: user, day: day, duration: count_days, offset: day - 1}
   end
 end

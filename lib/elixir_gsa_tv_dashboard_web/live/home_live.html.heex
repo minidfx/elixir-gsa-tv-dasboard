@@ -52,12 +52,12 @@
   </div>
   <div class="col-span-6 border border-gray-500 bg-gray-800 rounded text-white p-2 text-clip text-ellipsis">
     <div :if={@left_annotation_ready}>
-      <%= @left_annotation %>
+      <p :for={line <- @left_annotations}><%= line %></p>
     </div>
   </div>
   <div class="col-span-6 border border-gray-500 bg-gray-800 rounded text-white p-2 text-clip text-ellipsis">
     <div :if={@right_annotation_ready}>
-      <%= @right_annotation %>
+      <p :for={line <- @right_annotations}><%= line %></p>
     </div>
   </div>
 </div>
