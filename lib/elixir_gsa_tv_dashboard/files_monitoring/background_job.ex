@@ -39,9 +39,8 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
     Logger.info("Starting the files monitor ...")
 
     :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, HomeLive.topic())
-    :ok = PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "started"})
 
-    _ = Process.send_after(:files_monitoring, :loop, 100)
+    _ = Process.send_after(:files_monitoring, :loop, 1)
 
     {:noreply, state}
   end

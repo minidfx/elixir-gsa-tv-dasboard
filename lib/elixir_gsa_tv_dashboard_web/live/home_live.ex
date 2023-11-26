@@ -84,8 +84,6 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
   end
 
   def handle_info(%{status: "looping", daylight: is_daylight}, socket) do
-    IO.inspect(!is_daylight, label: "sunset/sunrise")
-
     {:noreply,
      socket
      |> assign(:dark_mode, !is_daylight)}

@@ -33,9 +33,8 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring d
     Logger.info("Starting the sunrise/sunset monitor ...")
 
     :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, HomeLive.topic())
-    :ok = PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "started"})
 
-    _pid = Process.send_after(:sunrise_sunset_monitoring, :loop, 100)
+    _pid = Process.send_after(:sunrise_sunset_monitoring, :loop, 1)
 
     {:noreply, state}
   end
