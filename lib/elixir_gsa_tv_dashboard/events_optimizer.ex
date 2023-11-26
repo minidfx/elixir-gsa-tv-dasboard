@@ -2,6 +2,7 @@ defmodule ElixirGsaTvDashboard.EventsOptimizer do
   alias ElixirGsaTvDashboardWeb.Models.Line
   alias ElixirGsaTvDashboardWeb.Models.Event
 
+  @spec optimize(list(Event.t())) :: list(Line.t())
   def optimize([]), do: []
 
   def optimize(events),
@@ -62,15 +63,16 @@ defmodule ElixirGsaTvDashboard.EventsOptimizer do
 
   defp group_events_by_day(events), do: events |> Enum.reduce(Map.new(), &group_by_day/2)
 
+  #  Group by day the events and sort them by duration descending. This module is VERY important because all the logic
+  #  to pick up events assumes that the events for a single are sorted by duration DESCENDING.
   defp group_by_day(%Event{day: d} = event, accumulator) when is_map(accumulator),
     do:
       accumulator
       |> Map.update(d, [event], fn existing_events ->
-        [event | existing_events] |> Enum.sort_by(&{sort_by_duration(&1), sort_by_user(&1)}, :desc)
+        [event | existing_events] |> Enum.sort_by(&sort_by_duration/1, :desc)
       end)
 
   defp sort_by_duration(%Event{duration: x}), do: x
-  defp sort_by_user(%Event{user: x}), do: x
 
   defp sort_by_index(%Line{index: x}), do: x
 
