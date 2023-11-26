@@ -72,7 +72,10 @@ config :elixir_gsa_tv_dashboard,
   planning_document_id: "<file-id>",
   annotation_left_document_id: "<file-id>",
   annotation_right_document_id: "<file-id>",
-  pooling_interval: 10_000
+  pooling_interval: 10_000,
+  sunset_latitude: "<lat>",
+  sunset_longitude: "<lng>",
+  timezone: "<tz>"
 
 # Include HEEx debug annotations as HTML comments in rendered markup
 config :phoenix_live_view, :debug_heex_annotations, true

@@ -11,15 +11,16 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
 
   require Logger
 
+  alias ElixirGsaTvDashboardWeb.HomeLive
   alias ElixirGsaTvDashboard.FilesMonitoring.ParserEvent
   alias ElixirGsaTvDashboard.FilesMonitoring.ParserLine
-  alias ElixirGsaTvDashboard.HttpClient
+  alias ElixirGsaTvDashboard.KdriveBridgeHttpClient
   alias Phoenix.PubSub
 
   # Client
 
   def start_link(_) do
-    {:ok, pid} = GenServer.start_link(__MODULE__, [], name: :files_monitoring)
+    {:ok, pid} = GenServer.start_link(__MODULE__, nil, name: :files_monitoring)
     _ = Process.send_after(:files_monitoring, :start, 1_000)
     {:ok, pid}
   end
@@ -30,14 +31,18 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
 
   @impl true
   def init(_) do
-    {:ok, %{files: []}}
+    {:ok, %{}}
   end
 
   @impl true
   def handle_info(:start, state) do
     Logger.info("Starting the files monitor ...")
+
+    :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, HomeLive.topic())
+    :ok = PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "started"})
+
     _ = Process.send_after(:files_monitoring, :loop, 100)
-    PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "started"})
+
     {:noreply, state}
   end
 
@@ -59,6 +64,20 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
 
     _ = Process.send_after(:files_monitoring, :loop, get_pooling_interval())
 
+    {:noreply,
+     state
+     |> Map.put(:tasks_by_user, planning_result)
+     |> Map.put(:annotation1, annotation_1)
+     |> Map.put(:annotation2, annotation_2)}
+  end
+
+  def handle_info(%{status: "mounted", name: live_view_name}, %{tasks_by_user: tu, annotation1: a1, annotation2: a2} = state) do
+    Logger.debug("Will send the tasks by user and annotations to the view mounted: #{live_view_name}")
+
+    PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "looping", tasks_by_user: tu})
+    PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "looping", annotation1: a1})
+    PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "looping", annotation2: a2})
+
     {:noreply, state}
   end
 
@@ -74,17 +93,17 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
 
   defp get_planning!(),
     do:
-      HttpClient.get_planning!()
+      KdriveBridgeHttpClient.get_planning!()
       |> then(&translate_to_events/1)
 
   defp get_annotation_1!(),
     do:
-      HttpClient.get_annotation_1!()
+      KdriveBridgeHttpClient.get_annotation_1!()
       |> then(fn %Tesla.Env{body: content} -> content end)
 
   defp get_annotation_2!(),
     do:
-      HttpClient.get_annotation_2!()
+      KdriveBridgeHttpClient.get_annotation_2!()
       |> then(fn %Tesla.Env{body: content} -> content end)
 
   defp translate_to_events(%Tesla.Env{body: body}) when is_bitstring(body),

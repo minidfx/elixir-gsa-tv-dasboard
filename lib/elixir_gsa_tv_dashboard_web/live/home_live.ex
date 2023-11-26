@@ -1,5 +1,4 @@
 defmodule ElixirGsaTvDashboardWeb.HomeLive do
-  alias ElixirGsaTvDashboard.EventsOptimizer
   use ElixirGsaTvDashboardWeb, :live_view
 
   require Logger
@@ -14,18 +13,27 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
   alias ElixirGsaTvDashboardWeb.Models.Event
   alias ElixirGsaTvDashboard.FilesMonitoring.ParserEvent
   alias ElixirGsaTvDashboard.FilesMonitoring.ParserLine
+  alias ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring
+  alias ElixirGsaTvDashboard.EventsOptimizer
 
   def mount(_, _, socket) do
-    PubSub.subscribe(ElixirGsaTvDashboard.PubSub, BackgroundJob.topic())
-    PubSub.subscribe(ElixirGsaTvDashboard.PubSub, Clock.topic())
+    :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, BackgroundJob.topic())
+    :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, Clock.topic())
+    :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, SunsetSunriseMonitoring.topic())
+
+    :ok = PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "mounted", name: ElixirGsaTvDashboardWeb.HomeLive})
 
     {:ok,
      socket
      |> assign(:clock_ready, false)
      |> assign(:calendar_ready, false)
      |> assign(:left_annotation_ready, false)
-     |> assign(:right_annotation_ready, false)}
+     |> assign(:right_annotation_ready, false)
+     |> assign(:page_title, "Weekly view")
+     |> assign(:dark_mode, false)}
   end
+
+  def topic(), do: "live_view"
 
   # Server (callbacks)
 
@@ -73,6 +81,14 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
        :left_annotations,
        split_lines(text)
      )}
+  end
+
+  def handle_info(%{status: "looping", daylight: is_daylight}, socket) do
+    IO.inspect(!is_daylight, label: "sunset/sunrise")
+
+    {:noreply,
+     socket
+     |> assign(:dark_mode, !is_daylight)}
   end
 
   def to_color(text) when is_bitstring(text) do

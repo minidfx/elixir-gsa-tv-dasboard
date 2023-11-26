@@ -59,7 +59,10 @@ if config_env() == :prod do
       System.get_env("ANNOTATION_LEFT_DOCUMENT_ID") || raise("The ANNOTATION_LEFT_DOCUMENT_ID variable was missing"),
     annotation_right_document_id:
       System.get_env("ANNOTATION_RIGHT_DOCUMENT_ID") || raise("The ANNOTATION_RIGHT_DOCUMENT_ID variable was missing"),
-    pooling_interval: System.get_env("POOLING_INTERVAL") || raise("The POOLING_INTERVAL variable was missing")
+    pooling_interval: System.get_env("POOLING_INTERVAL") || raise("The POOLING_INTERVAL variable was missing"),
+    sunset_latitude: System.get_env("LATITUDE") || raise("The LATITUDE variable was missing"),
+    sunset_longitude: System.get_env("LONGITUDE") || raise("The LONGITUDE variable was missing"),
+    timezone: System.get_env("TIMEZONE") || raise("The TIMEZONE variable was missing")
 
   # ## SSL Support
   #

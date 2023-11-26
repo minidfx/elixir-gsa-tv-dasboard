@@ -16,7 +16,8 @@ defmodule ElixirGsaTvDashboard.Application do
       # Start to serve requests, typically the last entry
       ElixirGsaTvDashboardWeb.Endpoint,
       ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob,
-      ElixirGsaTvDashboard.Clock
+      ElixirGsaTvDashboard.Clock,
+      ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

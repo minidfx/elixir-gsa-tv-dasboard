@@ -1,4 +1,4 @@
-defmodule ElixirGsaTvDashboard.HttpClient do
+defmodule ElixirGsaTvDashboard.KdriveBridgeHttpClient do
   use Tesla
 
   plug Tesla.Middleware.BaseUrl,
@@ -10,8 +10,6 @@ defmodule ElixirGsaTvDashboard.HttpClient do
   plug Tesla.Middleware.BasicAuth,
     username: Application.get_env(:elixir_gsa_tv_dashboard, :basic_auth_username),
     password: Application.get_env(:elixir_gsa_tv_dashboard, :basic_auth_password)
-
-  plug Tesla.Middleware.FollowRedirects, max_redirects: 1
 
   def get_planning!(), do: get!("/files/#{Application.get_env(:elixir_gsa_tv_dashboard, :planning_document_id)}")
   def get_annotation_1!(), do: get!("/files/#{Application.get_env(:elixir_gsa_tv_dashboard, :annotation_left_document_id)}")
