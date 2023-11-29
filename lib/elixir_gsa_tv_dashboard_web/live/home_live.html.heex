@@ -1,4 +1,4 @@
-<div class={["h-screen", @dark_mode && "dark"]}>
+<div id="weekly-calendar" class={["h-screen", @dark_mode && "dark"]} phx-hook="liveSocketState">
   <div class="h-screen grid grid-cols-12 grid-rows-5 gap-2 bg-slate-50 dark:bg-gray-900 dark:text-white">
     <div class="col-span-4 border rounded grid grid-rows-2 place-content-center bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-500">
       <div :if={@clock_ready} class="text-5xl text-center my-auto">
@@ -52,8 +52,9 @@
           ]}
         >
           <div class={[
-            "text-center h-10 bg-gradient-to-b bg-clip-padding py-2 from-gray-300 to-gray-100 dark:from-slate-600 dark:to-slate-700",
-            @clock_ready && Timex.weekday(@now) == day && "from-gray-400 to-gray-300 dark:from-slate-300 dark:to-slate-600"
+            "text-center h-10 bg-gradient-to-b bg-clip-padding py-2",
+            (@clock_ready && Timex.weekday(@now) == day && "from-gray-400 to-gray-300 dark:from-slate-300 dark:to-slate-600") ||
+              "from-gray-300 to-gray-100 dark:from-slate-600 dark:to-slate-700"
           ]}>
             <%= Enum.at(week_days, day - 1) %>
           </div>
