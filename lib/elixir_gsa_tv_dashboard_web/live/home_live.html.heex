@@ -43,12 +43,19 @@
           <% end %>
         <% end %>
 
+        <% week_days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"] %>
         <div
-          :for={day <- ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]}
-          class="h-full border-r-2 border-dashed last:border-0 dark:border-gray-400"
+          :for={day <- 1..7}
+          class={[
+            "h-full border-r-2 border-dashed last:border-0 dark:border-gray-400",
+            @clock_ready && Timex.weekday(@now) == day && "bg-gray-200 dark:bg-gray-600"
+          ]}
         >
-          <div class="text-center h-10 bg-gradient-to-b bg-clip-padding py-2 from-gray-300 to-gray-100 dark:from-slate-600 dark:to-slate-700">
-            <%= day %>
+          <div class={[
+            "text-center h-10 bg-gradient-to-b bg-clip-padding py-2 from-gray-300 to-gray-100 dark:from-slate-600 dark:to-slate-700",
+            @clock_ready && Timex.weekday(@now) == day && "from-gray-400 to-gray-300 dark:from-slate-300 dark:to-slate-600"
+          ]}>
+            <%= Enum.at(week_days, day - 1) %>
           </div>
         </div>
       </div>
