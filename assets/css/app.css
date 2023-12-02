@@ -4,52 +4,24 @@
 
 /* This file is for your main application CSS */
 @layer utilities {
-    .w-1\/7 {
-        width: 14.2857142857%
+    .w-5\/5 {
+        @apply w-full
     }
 
-    .w-2\/7 {
-        width: 28.5714285714%
+    .ml-1\/5 {
+        margin-left: 20%;
     }
 
-    .w-3\/7 {
-        width: 42.8571428571%
+    .ml-2\/5 {
+        margin-left: 40%;
     }
 
-    .w-4\/7 {
-        width: 57.1428571429%
+    .ml-3\/5 {
+        margin-left: 60%
     }
 
-    .w-5\/7 {
-        width: 71.4285714286%
-    }
-
-    .w-6\/7 {
-        width: 85.7142857143%
-    }
-
-    .ml-1\/7 {
-        margin-left: 14.2857142857%;
-    }
-
-    .ml-2\/7 {
-        margin-left: 28.5714285714%;
-    }
-
-    .ml-3\/7 {
-        margin-left: 42.8571428571%
-    }
-
-    .ml-4\/7 {
-        margin-left: 57.1428571429%
-    }
-
-    .ml-5\/7 {
-        margin-left: 71.4285714286%
-    }
-
-    .ml-6\/7 {
-        margin-left: 85.7142857143%
+    .ml-4\/5 {
+        margin-left: 80%
     }
 
     .top-30 {

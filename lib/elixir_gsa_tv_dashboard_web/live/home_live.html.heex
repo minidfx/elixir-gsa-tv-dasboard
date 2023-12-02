@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="row-span-3 col-span-11 border rounded bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
-      <div class="relative h-full grid grid-cols-7">
+      <div class="relative h-full grid grid-cols-5">
         <%= if @calendar_ready do %>
           <%= for line <- @calendar.lines do %>
             <div
@@ -31,8 +31,8 @@
               class={[
                 "absolute border rounded p-1 truncate dark:border-gray-400",
                 "top-#{(line.index + 1) * 10}",
-                "w-#{event.duration}/7",
-                event.offset > 0 && "ml-#{event.offset}/7"
+                "w-#{event.duration}/5",
+                event.offset > 0 && "ml-#{event.offset}/5"
               ]}
               style={"background-color: #{to_color(event.user)}"}
             >
@@ -43,9 +43,9 @@
           <% end %>
         <% end %>
 
-        <% week_days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"] %>
+        <% week_days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"] %>
         <div
-          :for={day <- 1..7}
+          :for={day <- 1..5}
           class={[
             "h-full border-r-2 border-dashed last:border-0 dark:border-gray-400",
             @clock_ready && Timex.weekday(@now) == day && "bg-gray-200 dark:bg-gray-600"

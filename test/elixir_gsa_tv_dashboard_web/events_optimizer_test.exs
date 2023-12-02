@@ -1,11 +1,11 @@
-defmodule EventsOptimizerTest do
+defmodule ElixirGsaTvDashboardWeb.EventsOptimizerTest do
   use ExUnit.Case
 
   @moduletag timeout: 2_000
 
   alias ElixirGsaTvDashboardWeb.Models.Line
   alias ElixirGsaTvDashboardWeb.Models.Event
-  alias ElixirGsaTvDashboard.EventsOptimizer
+  alias ElixirGsaTvDashboardWeb.EventsOptimizer
 
   defp create_event(title, day, duration, user),
     do: %Event{title: title, user: user, day: day, duration: duration, offset: day - 1}

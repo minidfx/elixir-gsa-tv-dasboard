@@ -1,4 +1,4 @@
-defmodule ElixirGsaTvDashboard.EventsOptimizer do
+defmodule ElixirGsaTvDashboardWeb.EventsOptimizer do
   alias ElixirGsaTvDashboardWeb.Models.Line
   alias ElixirGsaTvDashboardWeb.Models.Event
 

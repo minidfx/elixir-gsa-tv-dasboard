@@ -17,10 +17,10 @@ module.exports = {
       pattern: /top-\d+/
     },
     {
-      pattern: /w-\d+\/7/
+      pattern: /w-\d+\/5/
     },
     {
-      pattern: /ml-\d+\/7/
+      pattern: /ml-\d+\/5/
     }
   ],
   theme: {

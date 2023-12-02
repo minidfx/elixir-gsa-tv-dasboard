@@ -1,4 +1,5 @@
 defmodule ElixirGsaTvDashboardWeb.HomeLive do
+  alias ElixirGsaTvDashboardWeb.Models.Line
   use ElixirGsaTvDashboardWeb, :live_view
 
   require Logger
@@ -7,14 +8,15 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
 
   alias ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob
   alias ElixirGsaTvDashboard.Clock
+  alias ElixirGsaTvDashboard.FilesMonitoring.ParserEvent
+  alias ElixirGsaTvDashboard.FilesMonitoring.ParserLine
+  alias ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring
   alias ElixirGsaTvDashboardWeb.Models.Calendar
   alias ElixirGsaTvDashboard.FilesMonitoring.Event
   alias ElixirGsaTvDashboardWeb.Models.Event
   alias ElixirGsaTvDashboardWeb.Models.Event
-  alias ElixirGsaTvDashboard.FilesMonitoring.ParserEvent
-  alias ElixirGsaTvDashboard.FilesMonitoring.ParserLine
-  alias ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring
-  alias ElixirGsaTvDashboard.EventsOptimizer
+
+  alias ElixirGsaTvDashboardWeb.EventsOptimizer
 
   def mount(_, _, socket) do
     :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, BackgroundJob.topic())
@@ -49,6 +51,7 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
       |> Enum.map(&translate_events/1)
       |> Enum.reduce(&flatten/2)
       |> EventsOptimizer.optimize()
+      |> skip_week_end_days()
 
     {:noreply,
      socket
@@ -104,6 +107,17 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
   end
 
   # Private
+
+  defp skip_week_end_days([]), do: []
+
+  defp skip_week_end_days(lines) when is_list(lines),
+    do: lines |> Enum.map(&skip_week_end_days/1)
+
+  defp skip_week_end_days(%Line{index: i, events: events}),
+    do: %Line{index: i, events: events |> Enum.filter(&skip_week_end_days/1)}
+
+  defp skip_week_end_days(%Event{day: d}) when d > 5, do: false
+  defp skip_week_end_days(%Event{} = _event), do: true
 
   defp map_user(%ParserLine{user: x}), do: x
 
