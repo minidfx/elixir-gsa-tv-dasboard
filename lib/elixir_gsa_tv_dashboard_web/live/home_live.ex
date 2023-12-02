@@ -49,7 +49,7 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
     lines =
       tasks_by_user
       |> Enum.map(&translate_events/1)
-      |> Enum.reduce(&flatten/2)
+      |> safe_reduce()
       |> EventsOptimizer.optimize()
       |> skip_week_end_days()
 
@@ -107,6 +107,9 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
   end
 
   # Private
+
+  defp safe_reduce([]), do: []
+  defp safe_reduce(events), do: Enum.reduce(events, &flatten/2)
 
   defp skip_week_end_days([]), do: []
 

@@ -2,7 +2,7 @@ version: '3'
 services:
   gsa-dashboards:
     build: .
-    image: minidfx/gsa-dashboards:v0.5.0
+    image: minidfx/gsa-dashboards:v0.5.1
     environment:
       - SECRET_KEY_BASE=<secret-key>
       - KDRIVE_BRIDGE_HOST=<host>

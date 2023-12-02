@@ -93,22 +93,38 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
   defp get_planning!(),
     do:
       KdriveBridgeHttpClient.get_planning!()
+      |> then(&unwrap_body/1)
       |> then(&translate_to_events/1)
 
   defp get_annotation_1!(),
     do:
       KdriveBridgeHttpClient.get_annotation_1!()
-      |> then(fn %Tesla.Env{body: content} -> content end)
+      |> then(&unwrap_body/1)
+      |> then(&clean_annotations/1)
 
   defp get_annotation_2!(),
     do:
       KdriveBridgeHttpClient.get_annotation_2!()
-      |> then(fn %Tesla.Env{body: content} -> content end)
+      |> then(&unwrap_body/1)
+      |> then(&clean_annotations/1)
 
-  defp translate_to_events(%Tesla.Env{body: body}) when is_bitstring(body),
-    do:
-      body
-      |> translate_to_events()
+  defp clean_annotations({:error, reason}) do
+    Logger.error(reason)
+    ""
+  end
+
+  defp clean_annotations({:ok, x}), do: String.trim(x)
+
+  defp unwrap_body(%Tesla.Env{body: x, status: 200}), do: {:ok, x}
+  defp unwrap_body(%Tesla.Env{body: _, status: status}), do: {:error, "Bad status returned by the API: #{status}"}
+
+  defp translate_to_events({:ok, body}) when is_bitstring(body),
+    do: body |> translate_to_events()
+
+  defp translate_to_events({:error, reason}) do
+    Logger.error(reason)
+    []
+  end
 
   defp translate_to_events(content) when is_bitstring(content),
     do:
