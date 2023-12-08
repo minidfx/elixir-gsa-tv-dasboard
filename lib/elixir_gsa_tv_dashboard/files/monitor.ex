@@ -1,4 +1,4 @@
-defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
+defmodule ElixirGsaTvDashboard.Files.Monitor do
   @doc """
     This background job assumes that the external source follows the following design:
 
@@ -12,20 +12,22 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
   require Logger
 
   alias ElixirGsaTvDashboardWeb.HomeLive
-  alias ElixirGsaTvDashboard.FilesMonitoring.ParserEvent
-  alias ElixirGsaTvDashboard.FilesMonitoring.ParserLine
-  alias ElixirGsaTvDashboard.KdriveBridgeHttpClient
+
+  alias ElixirGsaTvDashboard.Files.ParserEvent
+  alias ElixirGsaTvDashboard.Files.ParserLine
+  alias ElixirGsaTvDashboard.KsuiteMiddlewareHttpClient
+
   alias Phoenix.PubSub
 
   # Client
 
   def start_link(_) do
-    {:ok, pid} = GenServer.start_link(__MODULE__, nil, name: :files_monitoring)
-    _ = Process.send_after(:files_monitoring, :start, 1_000)
+    {:ok, pid} = GenServer.start_link(__MODULE__, nil, name: :files_monitor)
+    _ = Process.send_after(:files_monitor, :start, 1)
     {:ok, pid}
   end
 
-  def topic(), do: "files_monitoring"
+  def topic(), do: "files_monitor"
 
   # Server (callbacks)
 
@@ -40,14 +42,14 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
 
     :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, HomeLive.topic())
 
-    _ = Process.send_after(:files_monitoring, :loop, 1)
+    _ = Process.send_after(:files_monitor, :loop, 1)
 
     {:noreply, state}
   end
 
   @impl true
   def handle_info(:loop, state) do
-    Logger.debug("Querying the bridge to retrieve the documents ...")
+    Logger.debug("Querying the middleware to retrieve the documents ...")
 
     http_queries = [
       Task.async(&get_planning!/0),
@@ -61,7 +63,7 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
     PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "looping", annotation1: annotation_1})
     PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "looping", annotation2: annotation_2})
 
-    _ = Process.send_after(:files_monitoring, :loop, get_pooling_interval())
+    _ = Process.send_after(:files_monitor, :loop, get_pooling_interval())
 
     {:noreply,
      state
@@ -80,6 +82,11 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
     {:noreply, state}
   end
 
+  def handle_info(%{status: "mounted", name: _}, state) do
+    Logger.debug("Too early, the files were not retrieved yet.")
+    {:noreply, state}
+  end
+
   # Private
 
   defp get_pooling_interval(),
@@ -92,19 +99,19 @@ defmodule ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob do
 
   defp get_planning!(),
     do:
-      KdriveBridgeHttpClient.get_planning!()
+      KsuiteMiddlewareHttpClient.get_planning_csv!()
       |> then(&unwrap_body/1)
       |> then(&translate_to_events/1)
 
   defp get_annotation_1!(),
     do:
-      KdriveBridgeHttpClient.get_annotation_1!()
+      KsuiteMiddlewareHttpClient.get_annotation_1!()
       |> then(&unwrap_body/1)
       |> then(&clean_annotations/1)
 
   defp get_annotation_2!(),
     do:
-      KdriveBridgeHttpClient.get_annotation_2!()
+      KsuiteMiddlewareHttpClient.get_annotation_2!()
       |> then(&unwrap_body/1)
       |> then(&clean_annotations/1)
 

@@ -51,7 +51,7 @@ if config_env() == :prod do
     secret_key_base: secret_key_base
 
   config :elixir_gsa_tv_dashboard,
-    kdrive_bridge_host_name: System.get_env("KDRIVE_BRIDGE_HOST") || raise("The KDRIVE_BRIDGE_HOST variable was missing"),
+    ksuite_middleware_server: System.get_env("KSUITE_MIDDLEWARE_SERVER") || raise("The KSUITE_MIDDLEWARE_SERVER variable was missing"),
     basic_auth_username: System.get_env("BASIC_AUTH_USERNAME") || raise("The BASIC_AUTH_USERNAME variable was missing"),
     basic_auth_password: System.get_env("BASIC_AUTH_PASSWORD") || raise("The BASIC_AUTH_PASSWORD variable was missing"),
     planning_document_id: System.get_env("PLANNING_DOCUMENT_ID") || raise("The PLANNING_DOCUMENT_ID variable was missing"),
@@ -62,7 +62,8 @@ if config_env() == :prod do
     pooling_interval: System.get_env("POOLING_INTERVAL") || raise("The POOLING_INTERVAL variable was missing"),
     sunset_latitude: System.get_env("LATITUDE") || raise("The LATITUDE variable was missing"),
     sunset_longitude: System.get_env("LONGITUDE") || raise("The LONGITUDE variable was missing"),
-    timezone: System.get_env("TIMEZONE") || raise("The TIMEZONE variable was missing")
+    timezone: System.get_env("TIMEZONE") || raise("The TIMEZONE variable was missing"),
+    calendar_id: System.get_env("CALENDAR_ID") || raise("The CALENDAR_ID variable was missing")
 
   # ## SSL Support
   #

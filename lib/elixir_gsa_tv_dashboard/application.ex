@@ -15,9 +15,10 @@ defmodule ElixirGsaTvDashboard.Application do
       # {ElixirGsaTvDashboard.Worker, arg},
       # Start to serve requests, typically the last entry
       ElixirGsaTvDashboardWeb.Endpoint,
-      ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob,
+      ElixirGsaTvDashboard.Files.Monitor,
+      ElixirGsaTvDashboard.Calendar.Monitor,
       ElixirGsaTvDashboard.Clock,
-      ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring
+      ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

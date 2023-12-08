@@ -5,7 +5,7 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseTimeHttpClie
 
   plug Tesla.Middleware.BaseUrl, "https://api.sunrise-sunset.org"
 
-  plug Tesla.Middleware.Logger, debug: true
+  plug Tesla.Middleware.Logger, debug: false
   plug Tesla.Middleware.Headers, [{"User-Agent", "tv-dashboard"}]
 
   plug Tesla.Middleware.DecodeJson

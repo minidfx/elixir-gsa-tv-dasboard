@@ -1,14 +1,17 @@
 <div id="weekly-calendar" class={["h-screen", @dark_mode && "dark"]} phx-hook="liveSocketState">
   <div class="h-screen grid grid-cols-12 grid-rows-5 gap-2 bg-slate-50 dark:bg-gray-900 dark:text-white">
-    <div class="col-span-4 border rounded grid grid-rows-2 place-content-center bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-500">
+    <div class="col-span-4 border rounded-br grid grid-rows-3 place-content-center bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-500 py-1">
       <div :if={@clock_ready} class="text-5xl text-center my-auto">
         <%= Timex.format!(@now, "{YYYY}-{0M}-{D}") %>
+      </div>
+      <div :if={@clock_ready} class="text-center my-auto pt-2">
+        AUJOURD'HUI
       </div>
       <div :if={@clock_ready} class="text-5xl text-center my-auto">
         <%= Timex.format!(@now, "{h24}:{m}:{s}") %>
       </div>
     </div>
-    <div class="col-span-8 border rounded bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
+    <div class="col-span-8 border rounded-bl bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
       <div class="w-full h-full grid place-content-center p-2">
         <div :if={@calendar_ready} class="flex flex-wrap gap-1">
           <div :for={user <- @calendar.users} class="text-2xl rounded p-1" style={"background-color: #{to_color(user)}"}>
@@ -17,12 +20,12 @@
         </div>
       </div>
     </div>
-    <div class="row-span-3 border rounded grid place-content-center bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
-      <div :if={@clock_ready} class="-rotate-90 text-5xl">
-        SEMAINE&nbsp;<%= Timex.format!(@now, "{Wmon}") %>
+    <div class="row-span-3 border rounded-r grid place-content-center bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
+      <div :if={@calendar_ready} class="-rotate-90 text-5xl">
+        SEMAINE&nbsp;<%= @week_num %>
       </div>
     </div>
-    <div class="row-span-3 col-span-11 border rounded bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
+    <div class="row-span-3 col-span-11 border rounded-l bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
       <div class="relative h-full grid grid-cols-5">
         <%= if @calendar_ready do %>
           <%= for line <- @calendar.lines do %>
@@ -61,12 +64,12 @@
         </div>
       </div>
     </div>
-    <div class="col-span-6 border rounded p-2 text-clip text-ellipsis bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
+    <div class="col-span-6 border rounded-tr p-2 text-clip text-ellipsis bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
       <div :if={@left_annotation_ready}>
         <p :for={line <- @left_annotations}><%= line %></p>
       </div>
     </div>
-    <div class="col-span-6 border rounded p-2 text-clip text-ellipsis bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
+    <div class="col-span-6 border rounded-tl p-2 text-clip text-ellipsis bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800">
       <div :if={@right_annotation_ready}>
         <p :for={line <- @right_annotations}><%= line %></p>
       </div>

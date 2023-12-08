@@ -1,4 +1,4 @@
-defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring do
+defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor do
   use GenServer
 
   require Logger
@@ -13,13 +13,13 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring d
   @padding 10
 
   def start_link(_) do
-    {:ok, pid} = GenServer.start_link(__MODULE__, nil, name: :sunrise_sunset_monitoring)
-    _ = Process.send_after(:sunrise_sunset_monitoring, :start, 1)
+    {:ok, pid} = GenServer.start_link(__MODULE__, nil, name: :sunrise_sunset_monitor)
+    _ = Process.send_after(:sunrise_sunset_monitor, :start, 1)
     {:ok, pid}
   end
 
   @spec topic() :: String.t()
-  def topic(), do: "sunrise_sunset_monitoring"
+  def topic(), do: "sunrise_sunset_monitor"
 
   # Server (callbacks)
 
@@ -34,7 +34,7 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring d
 
     :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, HomeLive.topic())
 
-    _pid = Process.send_after(:sunrise_sunset_monitoring, :loop, 1)
+    _pid = Process.send_after(:sunrise_sunset_monitor, :loop, 1)
 
     {:noreply, state}
   end
@@ -75,7 +75,7 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring d
 
       Logger.info("Will sleep #{Duration.to_seconds(sleep)} seconds and I will wake up at #{Timex.add(now, sleep)} bye bye.")
 
-      _ = Process.send_after(:sunrise_sunset_monitoring, :loop, Duration.to_milliseconds(sleep, truncate: true))
+      _ = Process.send_after(:sunrise_sunset_monitor, :loop, Duration.to_milliseconds(sleep, truncate: true))
 
       {:noreply,
        state
@@ -99,7 +99,7 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring d
     with {:ok, %Response{sunset: sunset, sunrise: sunrise}} <- SunsetSunriseTimeHttpClient.get_sunset_sunrise_time(request_date),
          %DateTime{} = sunset_zoned <- Timex.Timezone.convert(sunset, timezone),
          %DateTime{} = sunrise_zoned <- Timex.Timezone.convert(sunrise, timezone) do
-      _ = Process.send_after(:sunrise_sunset_monitoring, :loop, 1)
+      _pid = Process.send_after(:sunrise_sunset_monitor, :loop, 1)
 
       {:noreply,
        state

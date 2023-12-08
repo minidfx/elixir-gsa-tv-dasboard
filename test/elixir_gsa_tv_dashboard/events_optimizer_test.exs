@@ -1,24 +1,24 @@
-defmodule ElixirGsaTvDashboardWeb.EventsOptimizerTest do
+defmodule ElixirGsaTvDashboard.Calendar.OptimizerTest do
   use ExUnit.Case
 
   @moduletag timeout: 2_000
 
-  alias ElixirGsaTvDashboardWeb.Models.Line
-  alias ElixirGsaTvDashboardWeb.Models.Event
-  alias ElixirGsaTvDashboardWeb.EventsOptimizer
+  alias ElixirGsaTvDashboard.Calendar.Line
+  alias ElixirGsaTvDashboard.Calendar.Event
+  alias ElixirGsaTvDashboard.Calendar.Optimizer
 
   defp create_event(title, day, duration, user),
     do: %Event{title: title, user: user, day: day, duration: duration, offset: day - 1}
 
   test "optimize with an optimize list" do
-    actual = EventsOptimizer.optimize([])
+    actual = Optimizer.optimize([])
     expected = []
 
     assert expected == actual
   end
 
   test "optimize with a single event" do
-    actual = EventsOptimizer.optimize([%Event{title: "fake event", user: "me", day: 1, duration: 3, offset: 2}])
+    actual = Optimizer.optimize([%Event{title: "fake event", user: "me", day: 1, duration: 3, offset: 2}])
     expected_lines = [%Line{index: 0, events: [%Event{title: "fake event", user: "me", day: 1, duration: 3, offset: 2}]}]
 
     assert expected_lines == actual
@@ -31,7 +31,7 @@ defmodule ElixirGsaTvDashboardWeb.EventsOptimizerTest do
         create_event("another fake event", 2, 3, "user 2")
       ]
 
-    actual = EventsOptimizer.optimize(events)
+    actual = Optimizer.optimize(events)
 
     expected_lines =
       [
@@ -54,7 +54,7 @@ defmodule ElixirGsaTvDashboardWeb.EventsOptimizerTest do
         create_event("fake event 7", 7, 1, "user 3")
       ]
 
-    actual = EventsOptimizer.optimize(events)
+    actual = Optimizer.optimize(events)
 
     expected_lines =
       [

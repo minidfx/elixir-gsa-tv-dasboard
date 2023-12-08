@@ -1,4 +1,4 @@
-defmodule ElixirGsaTvDashboardWeb.Models.Event do
+defmodule ElixirGsaTvDashboard.Calendar.Event do
   @enforce_keys [:title, :user, :day, :duration, :offset]
   defstruct [:title, :user, :day, :duration, :offset]
 

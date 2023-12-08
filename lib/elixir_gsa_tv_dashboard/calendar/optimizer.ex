@@ -1,6 +1,6 @@
-defmodule ElixirGsaTvDashboardWeb.EventsOptimizer do
-  alias ElixirGsaTvDashboardWeb.Models.Line
-  alias ElixirGsaTvDashboardWeb.Models.Event
+defmodule ElixirGsaTvDashboard.Calendar.Optimizer do
+  alias ElixirGsaTvDashboard.Calendar.Line
+  alias ElixirGsaTvDashboard.Calendar.Event
 
   @spec optimize(list(Event.t())) :: list(Line.t())
   def optimize([]), do: []
@@ -34,8 +34,14 @@ defmodule ElixirGsaTvDashboardWeb.EventsOptimizer do
       |> clean_day_if_empty(day)
       |> create_line(index_line, day + duration, [event_found | events_took])
     else
-      :not_found -> create_line(events_by_day, index_line, day + 1, events_took)
-      :too_big -> create_line(events_by_day, index_line, day + 1, events_took)
+      :not_found ->
+        create_line(events_by_day, index_line, day + 1, events_took)
+
+      :too_big ->
+        events_by_day
+        |> Map.update!(day, &remove_first_event/1)
+        |> clean_day_if_empty(day)
+        |> create_line(index_line, day + 1, events_took)
     end
   end
 

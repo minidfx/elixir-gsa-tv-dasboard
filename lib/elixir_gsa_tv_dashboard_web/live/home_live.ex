@@ -1,27 +1,37 @@
 defmodule ElixirGsaTvDashboardWeb.HomeLive do
-  alias ElixirGsaTvDashboardWeb.Models.Line
   use ElixirGsaTvDashboardWeb, :live_view
 
   require Logger
 
   alias Phoenix.PubSub
 
-  alias ElixirGsaTvDashboard.FilesMonitoring.BackgroundJob
   alias ElixirGsaTvDashboard.Clock
-  alias ElixirGsaTvDashboard.FilesMonitoring.ParserEvent
-  alias ElixirGsaTvDashboard.FilesMonitoring.ParserLine
-  alias ElixirGsaTvDashboard.SunsetSunriseMonitoring.SunsetSunriseMonitoring
-  alias ElixirGsaTvDashboardWeb.Models.Calendar
-  alias ElixirGsaTvDashboard.FilesMonitoring.Event
-  alias ElixirGsaTvDashboardWeb.Models.Event
-  alias ElixirGsaTvDashboardWeb.Models.Event
 
-  alias ElixirGsaTvDashboardWeb.EventsOptimizer
+  alias ElixirGsaTvDashboard.Files.ParserEvent
+  alias ElixirGsaTvDashboard.Files.ParserLine
 
+  alias ElixirGsaTvDashboard.Calendar.Calendar
+  alias ElixirGsaTvDashboard.Calendar.Event
+  alias ElixirGsaTvDashboard.Calendar.Line
+  alias ElixirGsaTvDashboard.Calendar.Optimizer
+
+  alias ElixirGsaTvDashboard.Calendar.Monitor, as: CalDavMonitor
+  alias ElixirGsaTvDashboard.Files.Monitor, as: FilesMonitor
+  alias ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor, as: SunsetSunriseMonitor
+
+  def topic(), do: "live_view"
+
+  # Server (callbacks)
+
+  @impl true
   def mount(_, _, socket) do
-    :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, BackgroundJob.topic())
     :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, Clock.topic())
-    :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, SunsetSunriseMonitoring.topic())
+    :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, FilesMonitor.topic())
+    :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, SunsetSunriseMonitor.topic())
+
+    %{assigns: assigns} = socket
+
+    if match?(%{live_action: :new}, assigns), do: :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, CalDavMonitor.topic())
 
     :ok = PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "mounted", name: ElixirGsaTvDashboardWeb.HomeLive})
 
@@ -35,11 +45,34 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
      |> assign(:dark_mode, false)}
   end
 
-  def topic(), do: "live_view"
+  @impl true
+  def terminate(_, socket) do
+    :ok = PubSub.unsubscribe(ElixirGsaTvDashboard.PubSub, Clock.topic())
+    :ok = PubSub.unsubscribe(ElixirGsaTvDashboard.PubSub, FilesMonitor.topic())
+    :ok = PubSub.unsubscribe(ElixirGsaTvDashboard.PubSub, SunsetSunriseMonitor.topic())
 
-  # Server (callbacks)
+    %{assigns: assigns} = socket
 
-  def handle_info(%{status: "looping", tasks_by_user: tasks_by_user}, socket) do
+    if match?(%{live_action: :old}, assigns), do: :ok = PubSub.unsubscribe(ElixirGsaTvDashboard.PubSub, CalDavMonitor.topic())
+
+    :ok
+  end
+
+  @impl true
+  def handle_info(%{status: "looping", calendar: calendar}, %{assigns: %{live_action: :new}} = socket) do
+    %Calendar{interval: interval} = calendar
+    {:ok, from, _} = CalDavMonitor.safe_get_interval(interval) |> IO.inspect(label: "interval")
+    week_num = Timex.format!(from, "{Wmon}")
+
+    {:noreply,
+     socket
+     |> assign(:calendar_ready, true)
+     |> assign(:calendar, calendar)
+     |> assign(:week_num, week_num)}
+  end
+
+  @impl true
+  def handle_info(%{status: "looping", tasks_by_user: tasks_by_user}, %{assigns: %{live_action: :old}} = socket) do
     users =
       tasks_by_user
       |> Enum.map(&map_user/1)
@@ -50,15 +83,21 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
       tasks_by_user
       |> Enum.map(&translate_events/1)
       |> safe_reduce()
-      |> EventsOptimizer.optimize()
+      |> Optimizer.optimize()
       |> skip_week_end_days()
+
+    interval = CalDavMonitor.get_week_interval()
+    {:ok, from, _} = CalDavMonitor.safe_get_interval(interval)
+    week_num = Timex.format!(from, "{Wmon}")
 
     {:noreply,
      socket
      |> assign(:calendar_ready, true)
-     |> assign(:calendar, %Calendar{users: users, lines: lines})}
+     |> assign(:calendar, %Calendar{users: users, lines: lines, interval: interval})
+     |> assign(:week_num, week_num)}
   end
 
+  @impl true
   def handle_info(%{status: "looping", now: %DateTime{} = now}, socket) do
     {:noreply,
      socket
@@ -66,6 +105,7 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
      |> assign(:clock_ready, true)}
   end
 
+  @impl true
   def handle_info(%{status: "looping", annotation2: text}, socket) do
     {:noreply,
      socket
@@ -76,6 +116,7 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
      )}
   end
 
+  @impl true
   def handle_info(%{status: "looping", annotation1: text}, socket) do
     {:noreply,
      socket
@@ -86,11 +127,17 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
      )}
   end
 
+  @impl true
   def handle_info(%{status: "looping", daylight: is_daylight}, socket) do
     {:noreply,
      socket
      |> assign(:dark_mode, !is_daylight)}
   end
+
+  @impl true
+  def handle_info(%{status: "looping"}, socket), do: {:noreply, socket}
+
+  # Private
 
   def to_color(text) when is_bitstring(text) do
     hash = :erlang.phash2(text)
@@ -105,8 +152,6 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
 
     "##{color_code}"
   end
-
-  # Private
 
   defp safe_reduce([]), do: []
   defp safe_reduce(events), do: Enum.reduce(events, &flatten/2)

@@ -1,4 +1,4 @@
-defmodule ElixirGsaTvDashboard.FilesMonitoring.ParserEvent do
+defmodule ElixirGsaTvDashboard.Files.ParserEvent do
   defstruct [:name, :count, :start_date]
 
   @type t :: %__MODULE__{

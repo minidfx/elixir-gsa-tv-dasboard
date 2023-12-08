@@ -19,7 +19,8 @@ defmodule ElixirGsaTvDashboardWeb.Router do
 
     get "/", PageController, :index
 
-    live "/9a3d4c6b-87f1-4e9e-8f4a-2b76a7d5c3e1", HomeLive, :tv
+    live "/9a3d4c6b-87f1-4e9e-8f4a-2b76a7d5c3e1", HomeLive, :old
+    live "/6bb0a018-a3d8-4d38-be8b-e8de9afcfa95", HomeLive, :new
   end
 
   # Other scopes may use custom stacks.

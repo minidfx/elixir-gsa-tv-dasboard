@@ -9,7 +9,7 @@ import Config
 config :elixir_gsa_tv_dashboard, ElixirGsaTvDashboardWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {0, 0, 0, 0}, port: 4000],
+  http: [ip: {0, 0, 0, 0}, port: 4001],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -66,7 +66,7 @@ config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
 
 config :elixir_gsa_tv_dashboard,
-  kdrive_bridge_host_name: "<host>",
+  ksuite_middleware_server: "<host>",
   basic_auth_username: "<username>",
   basic_auth_password: "<password>",
   planning_document_id: "<file-id>",
@@ -75,7 +75,8 @@ config :elixir_gsa_tv_dashboard,
   pooling_interval: 10_000,
   sunset_latitude: "<lat>",
   sunset_longitude: "<lng>",
-  timezone: "<tz>"
+  timezone: "<tz>",
+  calendar_id: "<id>"
 
 # Include HEEx debug annotations as HTML comments in rendered markup
 config :phoenix_live_view, :debug_heex_annotations, true
