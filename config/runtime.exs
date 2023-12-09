@@ -51,7 +51,8 @@ if config_env() == :prod do
     secret_key_base: secret_key_base
 
   config :elixir_gsa_tv_dashboard,
-    ksuite_middleware_server: System.get_env("KSUITE_MIDDLEWARE_SERVER") || raise("The KSUITE_MIDDLEWARE_SERVER variable was missing"),
+    ksuite_middleware_server:
+      System.get_env("KSUITE_MIDDLEWARE_SERVER") || raise("The KSUITE_MIDDLEWARE_SERVER variable was missing"),
     basic_auth_username: System.get_env("BASIC_AUTH_USERNAME") || raise("The BASIC_AUTH_USERNAME variable was missing"),
     basic_auth_password: System.get_env("BASIC_AUTH_PASSWORD") || raise("The BASIC_AUTH_PASSWORD variable was missing"),
     planning_document_id: System.get_env("PLANNING_DOCUMENT_ID") || raise("The PLANNING_DOCUMENT_ID variable was missing"),

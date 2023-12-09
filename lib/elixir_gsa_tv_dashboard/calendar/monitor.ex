@@ -115,6 +115,7 @@ defmodule ElixirGsaTvDashboard.Calendar.Monitor do
   # Private
 
   defp publish_calendar({:ok, %Calendar{} = calendar}) do
+    Logger.debug("Calendar computed: #{inspect(calendar)}")
     PubSub.broadcast!(ElixirGsaTvDashboard.PubSub, topic(), %{status: "looping", calendar: calendar})
     {:ok, calendar}
   end

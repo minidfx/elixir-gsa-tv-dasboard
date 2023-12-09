@@ -37,7 +37,7 @@ defmodule ElixirGsaTvDashboardWeb.Router do
     # as long as you are also using SSL (which you should anyway).
     import Phoenix.LiveDashboard.Router
 
-    scope "/dev" do
+    scope "/dev/24c0f79a-d6ca-4e45-85f3-6e4fb0b2b716" do
       pipe_through :browser
 
       live_dashboard "/dashboard", metrics: ElixirGsaTvDashboardWeb.Telemetry
