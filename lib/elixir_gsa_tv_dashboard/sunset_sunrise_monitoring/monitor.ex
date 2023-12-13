@@ -30,7 +30,7 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor do
 
   @impl true
   def handle_info(:start, state) do
-    Logger.info("Starting the sunrise/sunset monitor ...")
+    Logger.info("[SS]: Starting the sunrise/sunset monitor ...")
 
     :ok = PubSub.subscribe(ElixirGsaTvDashboard.PubSub, HomeLive.topic())
 
@@ -41,7 +41,7 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor do
 
   @impl true
   def handle_info(:loop, %{sunrise: _, sunset: _} = state) do
-    Logger.info("Querying the sunrise/sunset API to determine the dark mode and schedule the next call ...")
+    Logger.info("[SS]: Querying the sunrise/sunset API to determine the dark mode and schedule the next call ...")
 
     timezone = Application.get_env(:elixir_gsa_tv_dashboard, :timezone)
 
@@ -55,6 +55,8 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor do
       is_daylight =
         Timex.now(timezone)
         |> Timex.between?(sunrise_zoned, sunset_zoned)
+
+      Logger.info("[SS]: Notifying the listeners about the daylight status.")
 
       _ =
         PubSub.broadcast!(
@@ -73,7 +75,9 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor do
         |> next_contact(sunrise_zoned, sunset_zoned)
         |> Duration.add(Duration.from_seconds(@padding))
 
-      Logger.info("Will sleep #{Duration.to_seconds(sleep)} seconds and I will wake up at #{Timex.add(now, sleep)} bye bye.")
+      Logger.info(
+        "[SS]: Will sleep #{Duration.to_seconds(sleep)} seconds and I will wake up at #{Timex.add(now, sleep)} bye bye."
+      )
 
       _ = Process.send_after(:sunrise_sunset_monitor, :loop, Duration.to_milliseconds(sleep, truncate: true))
 
@@ -84,13 +88,13 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor do
        |> Map.put(:is_daylight, is_daylight)}
     else
       _ ->
-        Logger.warning("Was not able to query the sunrise/sunset API.")
+        Logger.warning("[SS]: Was not able to query the sunrise/sunset API.")
         {:noreply, state}
     end
   end
 
   def handle_info(:loop, state) do
-    Logger.info("Querying the sunrise/sunset API the first time to retrieve daily sunset/sunrise hours ...")
+    Logger.info("[SS]: Querying the sunrise/sunset API the first time to retrieve daily sunset/sunrise hours ...")
 
     timezone = Application.get_env(:elixir_gsa_tv_dashboard, :timezone)
     now = Timex.now(timezone)
@@ -99,6 +103,7 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor do
     with {:ok, %Response{sunset: sunset, sunrise: sunrise}} <- SunsetSunriseTimeHttpClient.get_sunset_sunrise_time(request_date),
          %DateTime{} = sunset_zoned <- Timex.Timezone.convert(sunset, timezone),
          %DateTime{} = sunrise_zoned <- Timex.Timezone.convert(sunrise, timezone) do
+      Logger.info("[SS]: Make the default loop for the sunset/sunrise server.")
       _pid = Process.send_after(:sunrise_sunset_monitor, :loop, 1)
 
       {:noreply,
@@ -107,13 +112,13 @@ defmodule ElixirGsaTvDashboard.SunsetSunriseMonitoring.Monitor do
        |> Map.put(:sunrise, sunrise_zoned)}
     else
       _ ->
-        Logger.warning("Was not able to query the sunrise/sunset API the first time.")
+        Logger.warning("[SS]: Was not able to query the sunrise/sunset API the first time.")
         {:noreply, state}
     end
   end
 
   def handle_info(%{status: "mounted", name: live_view_name}, state) do
-    Logger.debug("Will send the information about the daylight to the live view mounted: #{live_view_name}")
+    Logger.debug("[SS]: Will send the information about the daylight to the live view mounted: #{live_view_name}")
 
     _ =
       PubSub.broadcast!(
