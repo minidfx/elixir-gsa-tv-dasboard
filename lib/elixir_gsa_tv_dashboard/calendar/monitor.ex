@@ -223,7 +223,7 @@ defmodule ElixirGsaTvDashboard.Calendar.Monitor do
     users =
       events
       |> Stream.map(&map_user/1)
-      |> Stream.dedup()
+      |> Stream.uniq()
       |> Enum.sort()
 
     lines =
