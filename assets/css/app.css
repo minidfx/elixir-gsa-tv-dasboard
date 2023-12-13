@@ -24,31 +24,43 @@
         margin-left: 80%
     }
 
+    .top-10 {
+        top: 1.8em;
+    }
+
+    .top-20 {
+        top: 3.7em;
+    }
+
     .top-30 {
-        top: 7.5em;
+        top: 5.6em;
     }
 
     .top-40 {
-        top: 10em;
+        top: 7.5em;
     }
 
     .top-50 {
-        top: 12.5em;
+        top: 9.4em;
     }
 
     .top-60 {
-        top: 15em;
+        top: 11.3em;
     }
 
     .top-70 {
-        top: 17.5em;
+        top: 13.2em;
     }
 
     .top-80 {
-        top: 20em;
+        top: 15.1em;
     }
 
     .top-90 {
-        top: 22.5em;
+        top: 17.0em;
+    }
+
+    .top-90 {
+        top: 18.9em;
     }
 }
