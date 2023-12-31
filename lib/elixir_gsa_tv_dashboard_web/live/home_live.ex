@@ -62,13 +62,18 @@ defmodule ElixirGsaTvDashboardWeb.HomeLive do
   def handle_info(%{status: "looping", calendar: calendar}, %{assigns: %{live_action: :new}} = socket) do
     %Calendar{interval: interval} = calendar
     {:ok, from, _} = CalDavMonitor.safe_get_interval(interval) |> IO.inspect(label: "interval")
-    week_num = Timex.format!(from, "{Wmon}")
+
+    week_num =
+      Timex.format!(from, "{Wmon}")
+      |> String.to_integer()
+      |> then(fn x -> x + 1 end)
 
     {:noreply,
      socket
      |> assign(:calendar_ready, true)
      |> assign(:calendar, calendar)
-     |> assign(:week_num, week_num)}
+     |> assign(:week_num, week_num)
+     |> assign(:interval_start, from)}
   end
 
   @impl true

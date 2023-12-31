@@ -56,8 +56,8 @@
             (@clock_ready && Timex.weekday(@now) == day && "from-gray-400 to-gray-300 dark:from-slate-300 dark:to-slate-600") ||
               "from-gray-300 to-gray-100 dark:from-slate-600 dark:to-slate-700"
           ]}>
-            <%= Enum.at(week_days, day - 1) %> <%= if @clock_ready,
-              do: Timex.beginning_of_week(@now) |> Timex.shift(days: day - 1) |> Timex.format!("{0D}.{0M}") %>
+            <%= Enum.at(week_days, day - 1) %> <%= if @calendar_ready,
+              do: Timex.shift(@interval_start, days: day - 1) |> Timex.format!("{0D}.{0M}") %>
           </div>
         </div>
       </div>
