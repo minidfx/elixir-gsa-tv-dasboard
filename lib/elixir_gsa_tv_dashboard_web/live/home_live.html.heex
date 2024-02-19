@@ -11,8 +11,12 @@
     <div class="col-span-8 border rounded-bl bg-white border-gray-300 dark:border-gray-500 dark:bg-gray-800 overflow-hidden">
       <div class="w-full h-full grid place-content-center p-2">
         <div :if={@calendar_ready} class="flex flex-wrap gap-1">
-          <div :for={user <- @calendar.users} class="text-2xl rounded p-1" style={"background-color: #{to_color(user)}"}>
-            <span class="bg-inherit bg-clip-text invert text-transparent"><%= user %></span>
+          <div
+            :for={%ElixirGsaTvDashboard.Calendar.User{name: x} <- @calendar.users}
+            class="text-2xl rounded p-1"
+            style={"background-color: #{to_color(x)}"}
+          >
+            <span class="bg-inherit bg-clip-text invert text-transparent"><%= x %></span>
           </div>
         </div>
       </div>

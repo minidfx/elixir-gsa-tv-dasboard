@@ -3,6 +3,7 @@ defmodule ElixirGsaTvDashboard.Calendar.Monitor do
 
   require Logger
 
+  alias ElixirGsaTvDashboard.Calendar.User
   alias ElixirGsaTvDashboard.Calendar.Optimizer
   alias ElixirGsaTvDashboard.Calendar.Calendar
   alias ElixirGsaTvDashboard.Calendar.Event
@@ -173,7 +174,8 @@ defmodule ElixirGsaTvDashboard.Calendar.Monitor do
       {:ok,
        %Event{
          title: subject,
-         user: user,
+         user: Phoenix.Naming.camelize(user),
+         user_normalized: normalize_user(user),
          day: week_day,
          offset: week_day - 1,
          duration: Timex.Interval.duration(duration, :days)
@@ -202,9 +204,15 @@ defmodule ElixirGsaTvDashboard.Calendar.Monitor do
   end
 
   defp is_valid_string(value) when is_bitstring(value),
-    do: if(String.length(value) > 0 && String.valid?(value), do: {:ok, String.trim(value)}, else: :empty)
+    do: if(String.length(value) > 0 && String.valid?(value), do: {:ok, value}, else: :empty)
 
   defp is_valid_string(_), do: :invalid
+
+  defp normalize_user(user) when is_bitstring(user),
+    do:
+      user
+      |> String.trim()
+      |> String.upcase()
 
   defp datetime_max(%DateTime{} = x, %DateTime{} = y), do: if(Timex.compare(x, y) > 0, do: x, else: y)
   defp datetime_min(%DateTime{} = x, %DateTime{} = y), do: if(Timex.compare(x, y) < 0, do: x, else: y)
@@ -223,7 +231,7 @@ defmodule ElixirGsaTvDashboard.Calendar.Monitor do
     users =
       events
       |> Stream.map(&map_user/1)
-      |> Stream.uniq()
+      |> Stream.uniq_by(fn %User{name_normalized: x} -> x end)
       |> Enum.sort()
 
     lines =
@@ -238,7 +246,8 @@ defmodule ElixirGsaTvDashboard.Calendar.Monitor do
 
   defp map_event({:ok, %Event{} = x}), do: x
 
-  defp map_user(%Event{user: x}), do: Phoenix.Naming.camelize(x)
+  defp map_user(%Event{user: x, user_normalized: y}),
+    do: %User{name: x, name_normalized: y}
 
   defp get_pooling_interval(),
     do:
